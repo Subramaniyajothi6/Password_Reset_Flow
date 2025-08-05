@@ -61,9 +61,8 @@ const authControllers = {
 
             console.log("User found:", user);
             console.log("Password valid:", isPasswordValid);
-            console.log("Token:", token);
+            console.log("Token:", token); 
             res.status(200).json({ message: `User logged in successfully ${user.name}` });
-
 
 
         } catch (err) {
@@ -122,7 +121,9 @@ const authControllers = {
     },
     resetPasswordConfirm: async (req, res) => {
         try {
-            const { token, newPassword } = req.body;
+
+            const { token } = req.params;
+            const { password } = req.body;
 
             const user = await User.findOne({
                 resetToken: token,
@@ -133,7 +134,7 @@ const authControllers = {
                 return res.status(400).json({ message: 'Invalid or expired token' });
             }
 
-            user.password = await bcrypt.hash(newPassword, 10);
+            user.password = await bcrypt.hash(password, 10);
             user.resetToken = undefined;
             user.resetTokenExpiration = undefined;
 
