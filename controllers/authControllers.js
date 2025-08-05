@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
-const { JWT_SECRET, EMAIL , EMAIL_PASS } = require('../utils/config');
+const { JWT_SECRET, EMAIL, EMAIL_PASS } = require('../utils/config');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 // const cookie = require('cookie');
@@ -50,7 +50,7 @@ const authControllers = {
             const isPasswordValid = await bcrypt.compare(password, user.password);
 
             if (!isPasswordValid) {
-               return res.status(400).json({ message: 'Invalid password' });
+                return res.status(400).json({ message: 'Invalid password' });
             }
 
             const token = jwt.sign({ id: user._id }, JWT_SECRET)
@@ -59,13 +59,15 @@ const authControllers = {
 
 
 
-
+            console.log("User found:", user);
+            console.log("Password valid:", isPasswordValid);
+            console.log("Token:", token);
             res.status(200).json({ message: `User logged in successfully ${user.name}` });
 
 
 
         } catch (err) {
-           return res.status(500).json({ message: `Login failed : ${err.message}` });
+            return res.status(500).json({ message: `Login failed : ${err.message}` });
         }
 
 
@@ -119,29 +121,29 @@ const authControllers = {
         }
     },
     resetPasswordConfirm: async (req, res) => {
-    try {
-        const { token, newPassword } = req.body;
+        try {
+            const { token, newPassword } = req.body;
 
-        const user = await User.findOne({
-            resetToken: token,
-            resetTokenExpiration: { $gt: Date.now() },
-        });
+            const user = await User.findOne({
+                resetToken: token,
+                resetTokenExpiration: { $gt: Date.now() },
+            });
 
-        if (!user) {
-            return res.status(400).json({ message: 'Invalid or expired token' });
+            if (!user) {
+                return res.status(400).json({ message: 'Invalid or expired token' });
+            }
+
+            user.password = await bcrypt.hash(newPassword, 10);
+            user.resetToken = undefined;
+            user.resetTokenExpiration = undefined;
+
+            await user.save();
+
+            res.status(200).json({ message: 'Password has been reset successfully' });
+        } catch (err) {
+            res.status(500).json({ message: `Error resetting password: ${err.message}` });
         }
-
-        user.password = await bcrypt.hash(newPassword, 10);
-        user.resetToken = undefined;
-        user.resetTokenExpiration = undefined;
-
-        await user.save();
-
-        res.status(200).json({ message: 'Password has been reset successfully' });
-    } catch (err) {
-        res.status(500).json({ message: `Error resetting password: ${err.message}` });
     }
-}
 
 }
 
