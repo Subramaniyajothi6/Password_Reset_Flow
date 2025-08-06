@@ -61,7 +61,7 @@ const authControllers = {
 
             console.log("User found:", user);
             console.log("Password valid:", isPasswordValid);
-            console.log("Token:", token); 
+            console.log("Token:", token);
             res.status(200).json({ message: `User logged in successfully ${user.name}` });
 
 
@@ -90,6 +90,8 @@ const authControllers = {
             user.resetTokenExpiration = Date.now() + 3600000; // 1 hour
             await user.save();
 
+            console.log("Generated token:", token);
+            console.log("User before save:", user);
 
 
             const resetLink = `http://localhost:5173/reset-password/${token}`;
@@ -125,11 +127,14 @@ const authControllers = {
             const { token } = req.params;
             const { password } = req.body;
 
+            console.log("Incoming password:", password);
+
             const user = await User.findOne({
                 resetToken: token,
                 resetTokenExpiration: { $gt: Date.now() },
             });
 
+            console.log("User found:", user);
             if (!user) {
                 return res.status(400).json({ message: 'Invalid or expired token' });
             }
@@ -140,7 +145,7 @@ const authControllers = {
 
             await user.save();
 
-            res.status(200).json({ message: 'Password has been reset successfully' });
+            res.status(200).json({ success: true, message: 'Password has been reset successfully' });
         } catch (err) {
             res.status(500).json({ message: `Error resetting password: ${err.message}` });
         }
