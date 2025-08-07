@@ -2,7 +2,7 @@ const express = require('express');
 const { register, login, logout, resetPassword, resetPasswordConfirm } = require('../controllers/authControllers');
 
 
-authRouter = express.Router();
+const authRouter = express.Router();
 
 authRouter.post('/register',register);
 authRouter.post('/login',login);
