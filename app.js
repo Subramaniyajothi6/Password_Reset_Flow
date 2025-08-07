@@ -8,17 +8,20 @@ const cors = require('cors');
 
 const app = express();
 app.use(cors({
-  origin:[ 'http://localhost:5173', 'https://password-reset-flow-gb7g.onrender.com' , 'https://passwordreset-flow-frontend.netlify.app'  ],
+  origin: ['http://localhost:5173', 'https://password-reset-flow-gb7g.onrender.com', 'https://passwordreset-flow-frontend.netlify.app'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true
 }));
 
+
+app.options('*', cors());
 app.use(express.json());
 
 app.use(cookieParser());
 
 app.use(logger);
 
-app.use("/api/v1/auth",authRouter);
+app.use("/api/v1/auth", authRouter);
 
 
 app.use(errorRoute);
